@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Line">
+        <attr name="line_height" format="integer"/>
+        <attr name="line_width" format="integer"/>
+        <attr name="angle_from_top" format="float"/>
+        <attr name="fill_color" format="color"/>
+    </declare-styleable>
+    <declare-styleable name="Platform">
+        <attr name="width" format="integer"/>
+        <attr name="plat_color" format="color"/>
+        <attr name="plat_distance" format="integer"/>
+    </declare-styleable>
+    <declare-styleable name="Player">
+        <attr name="x" format="integer"/>
+        <attr name="y" format="integer"/>
+        <attr name="player_src" format="reference"/>
+    </declare-styleable>
+</resources>
