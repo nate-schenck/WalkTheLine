@@ -1,7 +1,7 @@
 package com.example.walktheline;
 
 import android.annotation.SuppressLint;
-import android.content.res.Configuration;
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -18,15 +18,19 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.content.ContextCompat;
 
 import com.example.walktheline.views.Line;
 import com.example.walktheline.views.Platform;
 import com.example.walktheline.views.Player;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     int score; //score to be kept
     int state; //0 - in game; 1 - game over; 2 - in animation;
+    int highscore; // high score
 
     int startPlatDist;
 
@@ -56,6 +61,14 @@ public class MainActivity extends AppCompatActivity {
         score = 0;
         state = 0;
         main = this;
+
+        highscore = 0;
+        try {
+             highscore = getHighScore();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        updateHighScore();
 
         Player player = findViewById(R.id.player); //The player canvas
         TextView gameOverText = findViewById(R.id.game_over_text); //'Game Over'
@@ -89,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-
         layout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -114,6 +126,19 @@ public class MainActivity extends AppCompatActivity {
                         player.setVisibility(View.VISIBLE);
                         line.setVisibility(View.VISIBLE);
                         spawnNewPlatform();
+                        if (score > highscore) {
+                            try {
+                                setHighScore(score);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            updateHighScore();
+                            try {
+                                highscore = getHighScore();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         score = 0;
                         ((TextView)findViewById(R.id.score)).setText(score + "");
                         return true;
@@ -172,6 +197,14 @@ public class MainActivity extends AppCompatActivity {
                                 score++; // increase the score
                                 TextView scoreView = findViewById(R.id.score);
                                 scoreView.setText(score + ""); // show the score
+                                if (score > highscore)  {
+                                    try {
+                                        setHighScore(score);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    updateHighScore();
+                                }
                             }
 
                             @Override
@@ -269,6 +302,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void updateHighScore() {
+        TextView highScoreView = findViewById(R.id.high_score);
+        try {
+            highScoreView.setText("High Score: " + getHighScore());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void spawnNewPlatform() { // This is called to spawn the new "goal" platform
         Random rand = new Random();
         int platformMinSize = 30;
@@ -306,4 +348,25 @@ public class MainActivity extends AppCompatActivity {
                             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
     }
+
+    public int getHighScore() throws IOException {
+        File f  = new File(getFilesDir(), "highscore.txt"); // high score files contains only the high score
+        if (f.createNewFile()) {
+            return 0;
+        }
+        Scanner s = new Scanner(f);
+        if (!s.hasNextInt()) return 0;
+        int score = s.nextInt();
+        s.close();
+        return score;
+    }
+
+    public void setHighScore(int score) throws IOException{
+        File f  = new File(getFilesDir(), "highscore.txt");
+        f.createNewFile();
+        OutputStreamWriter streamWriter = new OutputStreamWriter(openFileOutput("highscore.txt", Context.MODE_PRIVATE));
+        streamWriter.write(score + ""); //rewrite the highscore file with the new high score
+        streamWriter.close();
+    }
+
 }
