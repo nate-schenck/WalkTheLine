@@ -2,6 +2,7 @@ package com.example.walktheline;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -367,6 +368,13 @@ public class MainActivity extends AppCompatActivity {
         OutputStreamWriter streamWriter = new OutputStreamWriter(openFileOutput("highscore.txt", Context.MODE_PRIVATE));
         streamWriter.write(score + ""); //rewrite the highscore file with the new high score
         streamWriter.close();
+    }
+
+    @Override
+    public void onBackPressed() {
+        //TODO: Pause Game, for now we go back to main menu
+        finish();
+        startActivity(new Intent(this, HomeScreen.class));
     }
 
 }
